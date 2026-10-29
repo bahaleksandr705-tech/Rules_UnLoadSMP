@@ -1,0 +1,1493 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#090413">
+  <title>UnLoadSMP — Правила</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Unbounded:wght@700;900&display=swap" rel="stylesheet">
+
+  <script>
+    (function () {
+      try {
+        var lite =
+          window.matchMedia('(hover: none), (pointer: coarse)').matches ||
+          window.innerWidth <= 900 ||
+          (navigator.hardwareConcurrency || 4) <= 4 ||
+          (navigator.deviceMemory || 4) <= 4;
+
+        var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        if (lite) document.documentElement.classList.add('lite');
+        if (reduced) document.documentElement.classList.add('reduced');
+      } catch (e) {
+        if (window.innerWidth <= 900) document.documentElement.classList.add('lite');
+      }
+    })();
+  </script>
+
+  <style>
+    :root{
+      --bg:#090413;
+      --text:#fff7ff;
+      --muted:#c8b6e4;
+      --border:rgba(255,255,255,.10);
+      --glass:rgba(255,255,255,.055);
+      --purple:#a855f7;
+      --violet:#7c3aed;
+      --pink:#ec4899;
+      --rose:#fb7185;
+      --cyan:#22d3ee;
+      --radius:26px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:Manrope, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 15% 12%, rgba(168,85,247,.26), transparent 28%),
+        radial-gradient(circle at 85% 10%, rgba(236,72,153,.22), transparent 24%),
+        radial-gradient(circle at 50% 92%, rgba(124,58,237,.18), transparent 30%),
+        var(--bg);
+      overflow-x:hidden;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    body::after{
+      content:"";
+      position:fixed;
+      inset:-40%;
+      z-index:-3;
+      pointer-events:none;
+      background:conic-gradient(
+        from 0deg,
+        transparent 0%,
+        rgba(168,85,247,.10) 12%,
+        transparent 25%,
+        rgba(236,72,153,.10) 42%,
+        transparent 58%,
+        rgba(34,211,238,.07) 74%,
+        transparent 100%
+      );
+      animation:slowSpin 34s linear infinite;
+      filter:blur(20px);
+      opacity:.72;
+    }
+
+    @keyframes slowSpin{to{transform:rotate(360deg)}}
+
+    a{color:inherit;text-decoration:none}
+    button,input{font:inherit;color:inherit}
+    button{border:0;background:none;cursor:pointer;touch-action:manipulation}
+
+    #fx{position:fixed;inset:0;z-index:-2;pointer-events:none}
+    #floaters{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+
+    .orb{
+      position:absolute;
+      border-radius:50%;
+      filter:blur(38px);
+      opacity:.24;
+      animation:drift var(--dur) ease-in-out infinite alternate;
+    }
+
+    .diamond{
+      position:absolute;
+      border:1px solid rgba(255,255,255,.16);
+      background:linear-gradient(135deg, rgba(168,85,247,.22), rgba(236,72,153,.12));
+      transform:rotate(45deg);
+      animation:spinFloat var(--dur) linear infinite;
+      opacity:.5;
+      box-shadow:0 0 24px rgba(168,85,247,.12);
+    }
+
+    @keyframes drift{
+      0%{transform:translate3d(0,0,0) scale(1)}
+      100%{transform:translate3d(var(--dx), var(--dy), 0) scale(1.18)}
+    }
+
+    @keyframes spinFloat{
+      0%{transform:rotate(45deg) translateY(0)}
+      50%{transform:rotate(180deg) translateY(-30px)}
+      100%{transform:rotate(405deg) translateY(0)}
+    }
+
+    .container{
+      width:min(1120px, calc(100% - 24px));
+      margin:0 auto;
+    }
+
+    .page{
+      position:relative;
+      z-index:1;
+      padding-bottom:calc(80px + env(safe-area-inset-bottom));
+    }
+
+    .hero{
+      min-height:100vh;
+      min-height:100svh;
+      display:grid;
+      place-items:center;
+      padding:calc(70px + env(safe-area-inset-top)) 0 34px;
+      text-align:center;
+    }
+
+    .staff-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 15px;
+      border-radius:999px;
+      border:1px solid rgba(236,72,153,.28);
+      background:linear-gradient(135deg, rgba(168,85,247,.16), rgba(236,72,153,.12));
+      color:#ffd6f2;
+      font-size:clamp(10px, 2.8vw, 12px);
+      font-weight:900;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      box-shadow:0 14px 40px rgba(0,0,0,.20);
+      backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
+    }
+
+    .title{
+      margin:20px 0 12px;
+      font-family:Unbounded, sans-serif;
+      font-size:clamp(38px, 11vw, 104px);
+      line-height:.9;
+      letter-spacing:-.06em;
+      color:transparent;
+      background:linear-gradient(
+        110deg,
+        #fff 0%,
+        #f5d0fe 18%,
+        #c084fc 34%,
+        #f472b6 52%,
+        #a855f7 70%,
+        #fff 100%
+      );
+      background-size:300% 100%;
+      -webkit-background-clip:text;
+      background-clip:text;
+      animation:titleShine 7s linear infinite;
+      filter:drop-shadow(0 12px 30px rgba(168,85,247,.18));
+      word-break:break-word;
+    }
+
+    @keyframes titleShine{
+      0%{background-position:0% 50%}
+      100%{background-position:300% 50%}
+    }
+
+    .subtitle{
+      max-width:760px;
+      margin:0 auto;
+      color:#e5d7ff;
+      font-size:clamp(14px, 3.8vw, 20px);
+      line-height:1.55;
+      font-weight:700;
+      text-shadow:0 4px 24px rgba(0,0,0,.18);
+    }
+
+    .ip-line{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:20px;
+      color:var(--muted);
+      font-weight:800;
+      font-size:clamp(12px, 3.2vw, 14px);
+    }
+
+    .ip-btn{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      min-height:46px;
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+      color:#fff;
+      font-weight:900;
+      font-size:clamp(12px, 3.2vw, 14px);
+      box-shadow:0 12px 30px rgba(0,0,0,.16);
+      transition:transform .18s ease, border-color .18s ease, background .18s ease;
+      will-change:transform;
+    }
+
+    .ip-btn:active{transform:scale(.97)}
+
+    .socials{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));
+      gap:12px;
+      margin:26px auto 0;
+      max-width:1000px;
+      text-align:left;
+    }
+
+    .social-btn{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-height:66px;
+      padding:14px 15px;
+      border-radius:22px;
+      border:1px solid rgba(255,255,255,.10);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03)),
+        radial-gradient(circle at top left, rgba(168,85,247,.16), transparent 45%);
+      box-shadow:0 18px 45px rgba(0,0,0,.20);
+      overflow:hidden;
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+      transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+      will-change:transform;
+    }
+
+    .social-btn::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius:inherit;
+      padding:1px;
+      background:linear-gradient(
+        130deg,
+        transparent 20%,
+        rgba(168,85,247,.65),
+        rgba(236,72,153,.65),
+        transparent 80%
+      );
+      -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      -webkit-mask-composite:xor;
+      mask-composite:exclude;
+      opacity:0;
+      transition:opacity .2s ease;
+      pointer-events:none;
+    }
+
+    .social-btn:active{transform:scale(.98)}
+
+    .social-icon{
+      width:48px;
+      height:48px;
+      border-radius:17px;
+      display:grid;
+      place-items:center;
+      color:#fff;
+      flex:0 0 auto;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.18), 0 10px 24px rgba(0,0,0,.18);
+    }
+
+    .social-icon svg{
+      width:25px;
+      height:25px;
+      display:block;
+    }
+
+    .vk .social-icon{background:linear-gradient(135deg,#6d28d9,#22d3ee)}
+    .discord .social-icon{background:linear-gradient(135deg,#7c3aed,#ec4899)}
+    .tg .social-icon{background:linear-gradient(135deg,#a855f7,#f472b6)}
+    .support .social-icon{background:linear-gradient(135deg,#d946ef,#fb7185)}
+    .bot .social-icon{background:linear-gradient(135deg,#8b5cf6,#22d3ee)}
+
+    .social-meta{min-width:0}
+    .social-meta strong{
+      display:block;
+      font-size:clamp(13px, 3.4vw, 15px);
+      font-weight:900;
+      letter-spacing:-.01em;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .social-meta small{
+      display:block;
+      margin-top:2px;
+      color:var(--muted);
+      font-size:clamp(11px, 3vw, 12px);
+      font-weight:800;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .social-arrow{
+      margin-left:auto;
+      color:var(--muted);
+      flex:0 0 auto;
+      transition:transform .2s ease, color .2s ease;
+    }
+
+    .search-shell{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      width:min(680px, 100%);
+      margin:20px auto 0;
+      padding:0 14px;
+      height:52px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.055);
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+      box-shadow:0 16px 40px rgba(0,0,0,.16);
+      transition:border-color .2s ease, box-shadow .2s ease;
+    }
+
+    .search-shell:focus-within{
+      border-color:rgba(236,72,153,.38);
+      box-shadow:0 0 0 4px rgba(236,72,153,.08), 0 18px 45px rgba(0,0,0,.18);
+    }
+
+    .search-shell input{
+      flex:1;
+      min-width:0;
+      border:0;
+      outline:none;
+      background:transparent;
+      font-weight:700;
+      font-size:15px;
+    }
+
+    .search-shell input::placeholder{color:#a08fbd}
+
+    .codex{padding:8px 0 18px}
+
+    .section-card{
+      position:relative;
+      margin:18px 0;
+      padding:22px;
+      border-radius:var(--radius);
+      border:1px solid rgba(255,255,255,.09);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.065), rgba(255,255,255,.025)),
+        radial-gradient(circle at top left, rgba(168,85,247,.12), transparent 38%),
+        radial-gradient(circle at bottom right, rgba(236,72,153,.10), transparent 35%);
+      box-shadow:0 20px 60px rgba(0,0,0,.18);
+      overflow:hidden;
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+      content-visibility:auto;
+      contain-intrinsic-size:auto 520px;
+    }
+
+    .section-card::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius:inherit;
+      padding:1px;
+      background:linear-gradient(
+        135deg,
+        rgba(168,85,247,.55),
+        rgba(236,72,153,.38),
+        rgba(34,211,238,.22),
+        rgba(168,85,247,.55)
+      );
+      background-size:300% 300%;
+      -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      -webkit-mask-composite:xor;
+      mask-composite:exclude;
+      animation:borderShine 9s linear infinite;
+      pointer-events:none;
+      opacity:.62;
+    }
+
+    @keyframes borderShine{
+      0%{background-position:0% 50%}
+      50%{background-position:100% 50%}
+      100%{background-position:0% 50%}
+    }
+
+    .section-card.hide{display:none}
+
+    .section-top{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:14px;
+    }
+
+    .section-glyph{
+      width:46px;
+      height:46px;
+      border-radius:17px;
+      display:grid;
+      place-items:center;
+      color:#fbc6ff;
+      background:linear-gradient(135deg, rgba(168,85,247,.18), rgba(236,72,153,.12));
+      border:1px solid rgba(236,72,153,.18);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.10);
+      flex:0 0 auto;
+    }
+
+    .section-glyph svg{width:23px;height:23px;display:block}
+
+    .section-title{
+      margin:0;
+      font-family:Unbounded, sans-serif;
+      font-size:clamp(17px, 4.8vw, 27px);
+      line-height:1.1;
+      font-weight:900;
+      letter-spacing:-.035em;
+      color:#fff;
+      text-shadow:0 8px 24px rgba(0,0,0,.16);
+    }
+
+    .section-intro{
+      margin:0 0 14px;
+      color:#dccdf2;
+      line-height:1.6;
+      font-weight:600;
+      font-size:clamp(13px, 3.5vw, 15px);
+    }
+
+    .rules-list{display:grid;gap:12px}
+
+    .rule{
+      position:relative;
+      padding:16px;
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,.07);
+      background:rgba(255,255,255,.035);
+      transition:transform .18s ease, border-color .18s ease, background .18s ease;
+    }
+
+    .rule:active{transform:scale(.99)}
+    .rule.hide{display:none}
+
+    .rule-head{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+
+    .rule-code{
+      padding:6px 10px;
+      border-radius:999px;
+      background:linear-gradient(135deg, rgba(168,85,247,.18), rgba(236,72,153,.14));
+      border:1px solid rgba(236,72,153,.18);
+      color:#ffd6f5;
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.02em;
+    }
+
+    .rule h3{
+      margin:0;
+      font-size:clamp(15px, 4vw, 18px);
+      line-height:1.25;
+      font-weight:900;
+      letter-spacing:-.02em;
+      color:#fff;
+    }
+
+    .rule-body p{
+      margin:8px 0;
+      color:#d9cced;
+      line-height:1.6;
+      font-size:clamp(13px, 3.5vw, 15px);
+    }
+
+    .rule-body ul{
+      margin:8px 0 0 18px;
+      color:#d9cced;
+      line-height:1.55;
+      font-size:clamp(13px, 3.5vw, 15px);
+    }
+
+    .rule-body li{margin:4px 0}
+
+    .verdict{
+      margin-top:12px;
+      padding:12px 14px;
+      border-radius:16px;
+      background:linear-gradient(90deg, rgba(236,72,153,.14), rgba(251,113,133,.10), rgba(168,85,247,.08));
+      border:1px solid rgba(236,72,153,.20);
+    }
+
+    .verdict-head{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom:7px;
+      color:#ffd0e8;
+      font-weight:900;
+      letter-spacing:-.01em;
+      font-size:14px;
+    }
+
+    .verdict ul{
+      margin:0 0 0 18px;
+      color:#ffe1f1;
+      font-size:clamp(13px, 3.5vw, 14px);
+    }
+
+    .note{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      margin:10px 0;
+      padding:12px 14px;
+      border-radius:15px;
+      background:linear-gradient(90deg, rgba(34,211,238,.10), rgba(168,85,247,.08));
+      border-left:3px solid var(--cyan);
+      color:#d8f7ff;
+      line-height:1.5;
+      font-size:clamp(12px, 3.3vw, 14px);
+    }
+
+    .ic{
+      display:inline-grid;
+      place-items:center;
+      width:1.25em;
+      height:1.25em;
+      flex:0 0 auto;
+    }
+
+    .ic svg{width:100%;height:100%;display:block}
+
+    .empty{
+      display:none;
+      text-align:center;
+      padding:50px 18px;
+      color:var(--muted);
+      font-size:16px;
+      font-weight:800;
+    }
+
+    .footer{padding:8px 0 0}
+
+    .footer-card{
+      position:relative;
+      text-align:center;
+      padding:24px 18px;
+      border-radius:24px;
+      border:1px solid rgba(255,255,255,.09);
+      background:
+        linear-gradient(135deg, rgba(168,85,247,.14), rgba(236,72,153,.10), rgba(34,211,238,.07)),
+        rgba(255,255,255,.03);
+      box-shadow:0 18px 50px rgba(0,0,0,.18);
+      overflow:hidden;
+    }
+
+    .footer-card::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius:inherit;
+      padding:1px;
+      background:linear-gradient(135deg, rgba(168,85,247,.55), rgba(236,72,153,.45), transparent);
+      -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      -webkit-mask-composite:xor;
+      mask-composite:exclude;
+      pointer-events:none;
+      opacity:.6;
+    }
+
+    .footer-card b{
+      display:block;
+      font-family:Unbounded, sans-serif;
+      font-size:clamp(16px, 5vw, 26px);
+      letter-spacing:-.03em;
+      color:#fff;
+    }
+
+    .footer-card p{
+      margin:8px 0 0;
+      color:#dbcdf0;
+      font-weight:700;
+      font-size:clamp(12px, 3.4vw, 14px);
+    }
+
+    .reveal{
+      opacity:0;
+      transform:translateY(24px) scale(.985);
+      transition:opacity .7s cubic-bezier(.2,.8,.2,1), transform .7s cubic-bezier(.2,.8,.2,1);
+      will-change:transform, opacity;
+    }
+
+    .reveal.in{opacity:1;transform:none}
+
+    #toast{
+      position:fixed;
+      left:50%;
+      bottom:calc(22px + env(safe-area-inset-bottom));
+      transform:translateX(-50%) translateY(20px);
+      opacity:0;
+      pointer-events:none;
+      z-index:100;
+      max-width:calc(100% - 28px);
+      padding:11px 16px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(18,8,28,.94);
+      backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
+      color:#fff;
+      font-weight:900;
+      font-size:13px;
+      text-align:center;
+      box-shadow:0 18px 45px rgba(0,0,0,.30);
+      transition:opacity .22s ease, transform .22s ease;
+    }
+
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+    @media (hover:hover) and (pointer:fine){
+      .ip-btn:hover{
+        transform:translateY(-2px);
+        border-color:rgba(236,72,153,.38);
+        background:rgba(236,72,153,.10);
+      }
+      .social-btn:hover{
+        transform:translateY(-3px);
+        border-color:rgba(255,255,255,.16);
+        box-shadow:0 24px 60px rgba(0,0,0,.28);
+      }
+      .social-btn:hover::after{opacity:1}
+      .social-btn:hover .social-arrow{transform:translateX(4px);color:#fff}
+      .rule:hover{
+        transform:translateY(-2px);
+        border-color:rgba(236,72,153,.20);
+        background:rgba(255,255,255,.05);
+      }
+    }
+
+    html.lite body::after{display:none}
+    html.lite .orb{filter:blur(18px);opacity:.12}
+    html.lite .diamond{display:none}
+    html.lite .title{animation:none}
+    html.lite .staff-badge,
+    html.lite .search-shell,
+    html.lite .social-btn,
+    html.lite .section-card{
+      backdrop-filter:none;
+      -webkit-backdrop-filter:none;
+    }
+    html.lite .section-card::before{display:none}
+    html.lite .section-card{
+      border-color:rgba(168,85,247,.18);
+      box-shadow:0 10px 28px rgba(0,0,0,.16);
+    }
+    html.lite .social-btn{box-shadow:0 10px 24px rgba(0,0,0,.16)}
+    html.lite .reveal{transition-duration:.28s}
+    html.lite #fx{opacity:.55}
+
+    html.reduced *,
+    html.reduced *::before,
+    html.reduced *::after{
+      animation-duration:.001ms !important;
+      animation-iteration-count:1 !important;
+      transition-duration:.001ms !important;
+      scroll-behavior:auto !important;
+    }
+
+    html.reduced .reveal{opacity:1;transform:none}
+
+    @media (max-width: 860px){
+      .hero{
+        min-height:auto;
+        padding:calc(82px + env(safe-area-inset-top)) 0 28px;
+      }
+      .socials{
+        grid-template-columns:1fr 1fr;
+        gap:10px;
+      }
+      .search-shell{
+        position:sticky;
+        top:10px;
+        z-index:30;
+        background:rgba(18,8,28,.78);
+      }
+    }
+
+    @media (max-width: 620px){
+      .container{width:min(1120px, calc(100% - 20px))}
+      .socials{grid-template-columns:1fr}
+      .social-btn{padding:13px 14px;min-height:62px}
+      .social-icon{width:44px;height:44px;border-radius:15px}
+      .social-icon svg{width:23px;height:23px}
+      .section-card{padding:16px;border-radius:22px}
+      .section-top{gap:10px}
+      .section-glyph{width:42px;height:42px;border-radius:15px}
+      .rule{padding:14px;border-radius:18px}
+      .verdict{padding:11px 12px}
+      .note{padding:11px 12px}
+      .footer-card{padding:20px 14px}
+    }
+
+    @media (max-width: 380px){
+      .staff-badge{padding:9px 12px;gap:8px}
+      .title{font-size:clamp(32px, 13vw, 54px)}
+      .ip-btn{width:100%;justify-content:center}
+      .ip-line{width:100%}
+      .search-shell{height:50px;padding:0 12px}
+      .rule-head{gap:8px}
+      .rule-code{font-size:11px;padding:5px 9px}
+    }
+  </style>
+</head>
+<body>
+  <canvas id="fx"></canvas>
+  <div id="floaters"></div>
+  <div id="root"></div>
+  <div id="toast"></div>
+
+  <script>
+    const SOCIAL = {
+      vk: "https://vk.com/unloadsmp",
+      discord: "https://discord.gg/k5zzWEqaRr",
+      telegram: "https://t.me/UnLoadSMP",
+      support: "https://t.me/UnLoadSMPs",
+      bot: "https://t.me/UnLoadSMP_bot"
+    };
+
+    const SERVER_IP = "mc.unloadsmp.fun";
+
+    const ICONS = {
+      lock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="3"/><path d="M8 10.5V7.5a4 4 0 018 0v3"/><circle cx="12" cy="15.5" r="1.25" fill="currentColor" stroke="none"/></svg>`,
+      search: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>`,
+      copy: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V5a2 2 0 012-2h10"/></svg>`,
+      arrow: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>`,
+      spark: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z"/></svg>`,
+      gavel: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4l6 6-3 3-6-6 3-3z"/><path d="M11 7L4 14l3 3 7-7"/><path d="M3 21h8"/></svg>`,
+      shield: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.4 8.3-8 9-4.6-.7-8-4-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg>`,
+      vk: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.684 0H8.316C1.592 0 0 1.592 0 8.316v7.368C0 22.408 1.592 24 8.316 24h7.368C22.408 24 24 22.408 24 15.684V8.316C24 1.592 22.391 0 15.684 0zm3.692 17.123h-1.744c-.66 0-.862-.525-2.049-1.714-1.033-1.01-1.49-1.135-1.744-1.135-.356 0-.458.102-.458.593v1.575c0 .424-.135.678-1.253.678-1.838 0-3.888-1.118-5.335-3.202C4.794 11.964 4.27 10.076 4.27 9.552c0-.271.102-.525.593-.525h1.744c.44 0 .61.203.78.678.863 2.49 2.303 4.675 2.896 4.675.22 0 .322-.102.322-.66V12.4c-.068-1.186-.695-1.287-.695-1.71 0-.204.17-.407.44-.407h2.744c.373 0 .508.203.508.643v3.473c0 .372.17.508.271.508.22 0 .407-.136.813-.542 1.253-1.406 2.15-3.574 2.15-3.574.119-.271.322-.508.763-.508h1.744c.525 0 .644.27.525.643-.22 1.017-2.387 4.095-2.387 4.095-.186.305-.254.44 0 .78.186.254.796.779 1.203 1.253.746.847 1.254 1.56 1.406 2.049.153.474-.085.716-.576.716z"/></svg>`,
+      discord: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5497-1.8722-.8915a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3627 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>`,
+      telegram: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 3.5 2.8 10.4c-.8.3-.8 1.4 0 1.7l4.4 1.5 1.7 5.1c.2.6 1 .8 1.4.3l2.4-2.6 4.5 3.3c.6.4 1.4.1 1.6-.6l3.2-14.4c.2-.8-.6-1.5-1.4-1.2Z"/><path d="m7.2 13.6 10.8-6.2-7.8 7.2"/></svg>`,
+      support: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13v-1a8 8 0 0116 0v1"/><rect x="2" y="13" width="4" height="6" rx="2"/><rect x="18" y="13" width="4" height="6" rx="2"/><path d="M20 19v1a3 3 0 01-3 3h-3"/></svg>`,
+      bot: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="8" width="14" height="10" rx="3"/><path d="M12 5v3"/><circle cx="12" cy="4" r="1.2" fill="currentColor" stroke="none"/><circle cx="9.5" cy="13" r="1.1" fill="currentColor" stroke="none"/><circle cx="14.5" cy="13" r="1.1" fill="currentColor" stroke="none"/><path d="M9.5 16.5h5"/></svg>`
+    };
+
+    const icon = (name, cls = "") => `<i class="ic ${cls}">${ICONS[name] || ""}</i>`;
+    const list = items => `<ul>${items.map(i => `<li>${i}</li>`).join("")}</ul>`;
+    const verdict = items => `
+      <div class="verdict">
+        <div class="verdict-head">${icon("gavel")}<span>Вердикт</span></div>
+        ${list(items)}
+      </div>
+    `;
+    const note = text => `<div class="note">${icon("spark")}<span>${text}</span></div>`;
+
+    const DATA = [
+      {
+        title: "Преамбула",
+        intro: "Настоящий Свод правил определяет права и обязанности игроков, порядок поведения на Проекте и меры ответственности за нарушения.",
+        rules: []
+      },
+      {
+        title: "Общие положения",
+        intro: "Базовые принципы действия Правил, ответственности игроков и полномочий Администрации.",
+        rules: [
+          {
+            code: "1.1",
+            title: "Область действия",
+            body: `<p>Настоящие Правила обязательны для всех игроков и распространяются на все игровые площадки, сервисы и официальные каналы Проекта.</p><p>Администрация вправе рассматривать нарушения, совершённые за пределами игрового сервера, например в личных сообщениях, комментариях или сторонних мессенджерах, если такие действия наносят ущерб Проекту, его сотрудникам или игрокам.</p>`
+          },
+          {
+            code: "1.2",
+            title: "Согласие с Правилами",
+            body: `<p>Регистрация аккаунта и начало игры означают полное и безусловное согласие игрока с настоящим Сводом правил.</p><p>Незнание Правил не освобождает от ответственности.</p>`
+          },
+          {
+            code: "1.3",
+            title: "Ответственность за аккаунт",
+            body: `<p>Владелец игрового аккаунта несёт ответственность за все действия, совершённые с его аккаунта, независимо от того, кто фактически использовал учётную запись.</p>`
+          },
+          {
+            code: "1.4",
+            title: "Изменение Правил",
+            body: `<p>Администрация вправе в любое время изменять и дополнять настоящий Свод без предварительного уведомления игроков.</p><p>Актуальная редакция Правил публикуется на официальных ресурсах Проекта.</p>`
+          },
+          {
+            code: "1.5",
+            title: "Особые обстоятельства",
+            body: `<p>В исключительных случаях, если это необходимо для обеспечения справедливости, безопасности Проекта или его участников, Администрация вправе:</p>${list([
+              "применить меру, прямо не предусмотренную настоящим Сводом;",
+              "смягчить или отменить назначенное наказание;",
+              "увеличить срок наказания при наличии отягчающих обстоятельств."
+            ])}<p>Такое решение принимается с учётом обстоятельств дела и интересов игрового сообщества.</p>`
+          }
+        ]
+      },
+      {
+        title: "Кодекс чата и общения",
+        intro: note("Сфера действия: все чаты и коммуникационные каналы Проекта. Нарушения в каналах, на которые не распространяется обычная блокировка чата, например /ac и /bc, могут наказываться баном на срок, установленный соответствующим пунктом."),
+        rules: [
+          {
+            code: "2.1.1",
+            title: "Оскорбления и унижения",
+            body: `<p>Запрещены высказывания, направленные на унижение достоинства другого игрока.</p><p>Запрещается:</p>${list([
+              "прямо оскорблять игроков;",
+              "упоминать родственников в негативном или унизительном контексте;",
+              "использовать нецензурную лексику и её производные как оскорбление."
+            ])}<p>Не считается нарушением:</p>${list([
+              "оскорбление самого себя;",
+              "мат в качестве междометия, если он не направлен на другого человека. Решение принимается с учётом контекста."
+            ])}${verdict([
+              "обычное оскорбление — мут 45 минут;",
+              "мат как форма оскорбления — мут 3 часа;",
+              "оскорбление родственников — мут 5 часов;",
+              "при особо циничной форме — до 10 часов."
+            ])}`
+          },
+          {
+            code: "2.1.2",
+            title: "Запрещённые темы и разжигание конфликтов",
+            body: `<p>Запрещены:</p>${list([
+              "разжигание конфликтов на почве расы, национальности или религии;",
+              "обсуждение политических событий и политических деятелей;",
+              "провокации, направленные на конфликт между игроками по указанным основаниям."
+            ])}${verdict(["мут 8 часов."])}`
+          },
+          {
+            code: "2.2.1",
+            title: "Флуд",
+            body: `<p>Флудом считается отправка однотипных или бессмысленных сообщений, засоряющих чат.</p><p>Запрещается:</p>${list([
+              "отправлять одинаковые сообщения 3 и более раз в течение минуты;",
+              "отправлять бессмысленные наборы символов длиной более 10 знаков, например «fvbhg67ev/u»."
+            ])}<p>Не считается флудом:</p>${list([
+              "реакции и смех с помощью эмодзи — до 20 символов;",
+              "обратный отсчёт «3-2-1», если он не используется систематически."
+            ])}${verdict(["мут 20 минут."])}`
+          },
+          {
+            code: "2.2.2",
+            title: "Организация флуда",
+            body: `<p>Запрещены действия, направленные на создание массового флуда.</p><p>В частности:</p>${list([
+              "призывы к флуду, например «Кто дышит — ставьте +» и подобные;",
+              "сговор с другими игроками для обхода антиспам-системы."
+            ])}<p>Не считается организацией флуда обычная просьба о помощи или добавлении игрока в приват.</p>${verdict(["мут 45 минут."])}`
+          },
+          {
+            code: "2.2.3",
+            title: "Попрошайничество",
+            body: `<p>Запрещено навязчиво выпрашивать ценности у других игроков.</p><p>Запрещены:</p>${list([
+              "просьбы о донате или привилегиях;",
+              "просьбы о передаче игровой валюты;",
+              "просьбы о снятии корректно выданного наказания."
+            ])}<p>Разрешено просить обычные, легкодоступные игровые ресурсы, которые не являются эксклюзивными.</p>${verdict([
+              "первое нарушение — предупреждение (Warn);",
+              "повторное нарушение — мут 20 минут."
+            ])}`
+          },
+          {
+            code: "2.2.4",
+            title: "Флуд командами",
+            body: `<p>Запрещено вводить 5 и более однотипных команд в течение минуты, если результат их выполнения виден другим игрокам, например /vkill, /kick.</p>${verdict(["бан 20 минут."])}`
+          },
+          {
+            code: "2.3.1",
+            title: "Упоминание сторонних серверов",
+            body: `<p>Запрещено упоминать названия или IP-адреса других игровых проектов в обычном игровом диалоге.</p>${verdict(["мут 3 часа."])}`
+          },
+          {
+            code: "2.3.2",
+            title: "Переманивание игроков",
+            body: `<p>Запрещены целенаправленные попытки переманить игроков на другой игровой проект.</p>${verdict(["бан 5 дней."])}`
+          },
+          {
+            code: "2.3.3",
+            title: "Реклама",
+            body: `<p>Запрещено привлекать аудиторию на сторонние ресурсы с целью увеличения их активности, особенно если ресурс не связан с Проектом либо распространяет негативную информацию о нём.</p><p>Предложение «бесплатного доната» в обмен на переход на сторонний ресурс также считается рекламой.</p><p>Разрешены:</p>${list([
+              "ссылки на сайты по Minecraft, если они не рекламируют услуги и не относятся к другим серверам;",
+              "контакты для связи вне игрового контекста."
+            ])}${verdict([
+              "бессрочная блокировка аккаунта;",
+              "блокировка IP на 90 дней;",
+              "полное снятие привилегий."
+            ])}`
+          },
+          {
+            code: "2.4.1",
+            title: "Введение в заблуждение",
+            body: `<p>Запрещено распространять заведомо ложную информацию о Проекте или провоцировать игроков на опасные действия.</p><p>Примеры: «Нажми Alt+F4», «Напиши /logout» и аналогичные действия, способные привести к нежелательным последствиям для игрока.</p>${verdict(["мут 3 часа."])}`
+          },
+          {
+            code: "2.4.2",
+            title: "Подстрекательство к нарушению Правил",
+            body: `<p>Запрещено намеренно провоцировать другого игрока на нарушение настоящего Свода.</p>${verdict(["половина срока наказания, которое получил бы подстрекаемый игрок, но не менее 3 часов мута."])}`
+          },
+          {
+            code: "2.5.1",
+            title: "Необоснованная дискредитация действий персонала",
+            body: `<p>Запрещено намеренно распространять негативную информацию о действиях сотрудников или игровых аспектах с целью ухудшить отношение игроков к Проекту.</p>${verdict(["мут 12 часов."])}`
+          },
+          {
+            code: "2.5.2",
+            title: "Оскорбление персонала",
+            body: `<p>Запрещены конфликтные и оскорбительные высказывания в адрес Администрации, Модерации и других сотрудников Проекта.</p><p>Нарушение классифицируется по пункту 2.1.1 с учётом статуса потерпевшего.</p>${verdict([
+              "оскорбление сотрудника без упоминания родственников — бан 2 дня;",
+              "оскорбление родственников сотрудника — бан 5 дней."
+            ])}`
+          },
+          {
+            code: "2.5.3",
+            title: "Дискредитация Проекта",
+            body: `<p>Запрещены целенаправленные действия и высказывания, направленные на дискредитацию Проекта, его режимов, плагинов или официальных ресурсов.</p>${verdict([
+              "бессрочная блокировка аккаунта;",
+              "блокировка IP на 90 дней;",
+              "полное снятие привилегий."
+            ])}`
+          }
+        ]
+      },
+      {
+        title: "Общий игровой кодекс",
+        intro: "Правила, обязательные для большинства игровых режимов Проекта.",
+        rules: [
+          {
+            code: "3.1.1",
+            title: "Передача аккаунта",
+            body: `<p>Запрещается:</p>${list([
+              "разглашать пароль;",
+              "передавать аккаунт третьим лицам;",
+              "публиковать объявления о продаже или обмене аккаунтов."
+            ])}${verdict(["бессрочная блокировка всех аккаунтов и снятие привилегий."])}`
+          },
+          {
+            code: "3.1.2",
+            title: "Обход наказания",
+            body: `<p>Запрещено использовать альтернативные аккаунты или иные способы обхода IP-блокировки для продолжения игры.</p>${verdict([
+              "IP-блокировка на 2 дня."
+            ])}<p>Если исходное наказание превышает 2 дня, IP-блокировка продлевается до срока исходного наказания.</p>`
+          },
+          {
+            code: "3.2.1",
+            title: "Читы и нечестное преимущество",
+            body: `<p>Запрещены:</p>${list([
+              "использование читов и стороннего ПО, дающего преимущество;",
+              "хранение или распространение такого ПО;",
+              "отказ от проверки;",
+              "попытки скрыть следы использования читов во время проверки."
+            ])}<p>Примеры: X-Ray, автокликеры, ESP и аналогичные средства.</p>${verdict([
+              "бессрочная блокировка аккаунта;",
+              "IP-блокировка на 90 дней;",
+              "снятие привилегий."
+            ])}${note("Предусмотрена временная мера — IP-бан от 3 до 7 дней в случаях, определяемых Администрацией.")}`
+          },
+          {
+            code: "3.2.2",
+            title: "Сотрудничество с читером",
+            body: `<p>Запрещено намеренно сотрудничать с игроком, использующим читы, если целью сотрудничества является получение выгоды.</p><p>Пример: намеренная игра в одной команде или регионе с читером ради получения преимущества.</p>${verdict([
+              "бан 30 дней.",
+              "Повторное нарушение — бессрочная блокировка."
+            ])}`
+          },
+          {
+            code: "3.3.1",
+            title: "Недопустимый никнейм",
+            body: `<p>Запрещены никнеймы, содержащие:</p>${list([
+              "оскорбления;",
+              "нецензурную лексику;",
+              "ссылки на сторонние ресурсы;",
+              "отсылки к читам;",
+              "имитацию никнейма сотрудника Проекта."
+            ])}${verdict(["бессрочная блокировка аккаунта."])}`
+          },
+          {
+            code: "3.3.2",
+            title: "Недопустимая кастомизация",
+            body: `<p>Запрещены никнеймы, префиксы, титулы и названия кланов, содержащие:</p>${list([
+              "оскорбления;",
+              "рекламу;",
+              "личные данные;",
+              "запрещённые цветовые теги;",
+              "имитацию элементов кастомизации персонала."
+            ])}${verdict([
+              "первое нарушение — бан 3 часа с требованием исправить нарушение;",
+              "повторное нарушение — бан 12 часов."
+            ])}`
+          },
+          {
+            code: "3.3.3",
+            title: "Недопустимые постройки",
+            body: `<p>Запрещено создавать постройки, картины и другие объекты, которые:</p>${list([
+              "пропагандируют нацизм;",
+              "содержат сцены насилия;",
+              "содержат порнографию;",
+              "содержат оскорбления."
+            ])}${note("Если постройка существовала более 150 часов и не была замечена ранее, наказание может не применяться, однако постройка подлежит обязательному сносу.")}${verdict(["бан 8 часов и принудительный снос постройки."])}`
+          },
+          {
+            code: "3.4.1",
+            title: "Некорректное наказание",
+            body: `<p>Нарушением считается выдача наказания:</p>${list([
+              "не предусмотренного Правилами;",
+              "с неправильным сроком;",
+              "за нарушение, которое уже было пресечено и наказано."
+            ])}${verdict([
+              "бан 8 часов.",
+              "При 7 и более нарушениях — бан 30 дней с конфискацией привилегий."
+            ])}`
+          },
+          {
+            code: "3.4.2",
+            title: "Отсутствие доказательств",
+            body: `<p>Запрещено выдавать наказание без достаточных доказательств: скриншотов, видео, логов или иных подтверждений.</p>${verdict([
+              "бан 1 день.",
+              "При 7 и более нарушениях — бан 30 дней с конфискацией привилегий."
+            ])}`
+          },
+          {
+            code: "3.4.3",
+            title: "Злоупотребление полномочиями",
+            body: `<p>Запрещено использовать оскорбительные, унизительные или неадекватные причины наказания.</p>${verdict([
+              "бан 2 дня.",
+              "При 3 и более нарушениях — бан 30 дней с конфискацией привилегий."
+            ])}`
+          },
+          {
+            code: "3.4.4",
+            title: "Самовольное снятие наказания",
+            body: `<p>Запрещено самостоятельно снимать блокировку, наложенную другим сотрудником Проекта.</p>${verdict([
+              "бан 1 день.",
+              "При 7 и более нарушениях — бан 30 дней с конфискацией привилегий."
+            ])}`
+          },
+          {
+            code: "3.5.1",
+            title: "Вмешательство в работу персонала",
+            body: `<p>Запрещается:</p>${list([
+              "выдавать себя за сотрудника;",
+              "без разрешения вызывать игроков на проверку;",
+              "вмешиваться в работу Администрации."
+            ])}${verdict(["бан 2 дня."])}`
+          },
+          {
+            code: "3.5.2",
+            title: "Вред Проекту",
+            body: `<p>Запрещены:</p>${list([
+              "намеренная порча спавнов;",
+              "создание лагов;",
+              "использование багов;",
+              "взлом аккаунтов;",
+              "подделка доказательств."
+            ])}${verdict([
+              "бессрочная блокировка аккаунта;",
+              "IP-блокировка на 90 дней;",
+              "снятие привилегий."
+            ])}`
+          },
+          {
+            code: "3.5.3",
+            title: "Деанонимизация (доксинг)",
+            body: `<p>Запрещено распространять личную информацию игроков без их согласия, включая ФИО, адрес, номер телефона и другие персональные данные.</p>${verdict([
+              "бессрочная блокировка аккаунта;",
+              "IP-блокировка на 90 дней;",
+              "снятие привилегий."
+            ])}`
+          },
+          {
+            code: "3.5.4",
+            title: "Торговля за реальные деньги",
+            body: `<p>Запрещены сделки по продаже или обмену игровых ценностей за реальные деньги.</p>${verdict([
+              "бессрочная блокировка аккаунта;",
+              "IP-блокировка на 90 дней;",
+              "снятие привилегий."
+            ])}`
+          }
+        ]
+      }
+    ];
+
+    const root = document.getElementById("root");
+
+    const socialsData = [
+      { name: "ВКонтакте", sub: "Сообщество проекта", cls: "vk", icon: "vk", url: SOCIAL.vk },
+      { name: "Discord", sub: "Голос и общение", cls: "discord", icon: "discord", url: SOCIAL.discord },
+      { name: "Telegram-канал", sub: "Новости проекта", cls: "tg", icon: "telegram", url: SOCIAL.telegram },
+      { name: "Тех. поддержка", sub: "@UnLoadSMPs", cls: "support", icon: "support", url: SOCIAL.support },
+      { name: "Бот привязки", sub: "@UnLoadSMP_bot", cls: "bot", icon: "bot", url: SOCIAL.bot }
+    ];
+
+    root.innerHTML = `
+      <main class="page">
+        <section class="hero">
+          <div class="container">
+            <div class="staff-badge">${icon("lock")} Правила проекта</div>
+
+            <h1 class="title">UnLoadSMP</h1>
+
+            <p class="subtitle">
+              Официальный свод правил UnLoadSMP. Ознакомление обязательно. Незнание правил не освобождает от ответственности.
+            </p>
+
+            <div class="ip-line">
+              <span>IP сервера:</span>
+              <button class="ip-btn" id="copyIp">
+                ${icon("copy")}
+                <span>${SERVER_IP}</span>
+              </button>
+            </div>
+
+            <div class="socials">
+              ${socialsData.map(s => `
+                <a class="social-btn ${s.cls}" href="${s.url}" target="_blank" rel="noopener noreferrer">
+                  <span class="social-icon">${ICONS[s.icon]}</span>
+                  <span class="social-meta">
+                    <strong>${s.name}</strong>
+                    <small>${s.sub}</small>
+                  </span>
+                  <span class="social-arrow">${ICONS.arrow}</span>
+                </a>
+              `).join("")}
+            </div>
+
+            <label class="search-shell">
+              ${icon("search")}
+              <input id="search" type="search" placeholder="Поиск: читы, мат, реклама, грифер...">
+            </label>
+          </div>
+        </section>
+
+        <section class="codex container" id="rules">
+          ${DATA.map(section => `
+            <article class="section-card reveal">
+              <div class="section-top">
+                <span class="section-glyph">${ICONS.shield}</span>
+                <h2 class="section-title">${section.title}</h2>
+              </div>
+
+              ${section.intro ? `<div class="section-intro">${section.intro}</div>` : ""}
+
+              <div class="rules-list">
+                ${section.rules.map(rule => `
+                  <div class="rule reveal">
+                    <div class="rule-head">
+                      <span class="rule-code">${rule.code}</span>
+                      <h3>${rule.title}</h3>
+                    </div>
+                    <div class="rule-body">${rule.body}</div>
+                  </div>
+                `).join("")}
+              </div>
+            </article>
+          `).join("")}
+        </section>
+
+        <div class="empty container" id="empty">
+          Ничего не найдено. Попробуй другой запрос.
+        </div>
+
+        <footer class="container footer">
+          <div class="footer-card reveal">
+            <b>UnLoadSMP • Правила сервера</b>
+            <p>Играйте честно. Соблюдайте правила. Уважайте других.</p>
+          </div>
+        </footer>
+      </main>
+    `;
+
+    const isLite = document.documentElement.classList.contains('lite');
+    const isReduced = document.documentElement.classList.contains('reduced');
+
+    if (isReduced) {
+      document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+    } else {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, {
+        threshold: isLite ? 0.02 : 0.08,
+        rootMargin: isLite ? '120px 0px' : '0px'
+      });
+
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    }
+
+    if (!isLite && !isReduced) {
+      document.querySelectorAll('.social-btn, .ip-btn').forEach(el => {
+        el.addEventListener('mousemove', e => {
+          const r = el.getBoundingClientRect();
+          const x = (e.clientX - r.left - r.width / 2) / r.width;
+          const y = (e.clientY - r.top - r.height / 2) / r.height;
+
+          if (el.classList.contains('social-btn')) {
+            el.style.transform = `perspective(760px) rotateX(${-y * 7}deg) rotateY(${x * 9}deg) translate(${x * 7}px, ${y * 7}px)`;
+          } else {
+            el.style.transform = `translate(${x * 7}px, ${y * 7}px)`;
+          }
+        });
+
+        el.addEventListener('mouseleave', () => {
+          el.style.transform = '';
+        });
+      });
+    }
+
+    const searchInput = document.getElementById('search');
+    const empty = document.getElementById('empty');
+
+    const ruleItems = [...document.querySelectorAll('.rule')].map(el => ({
+      el,
+      text: (el.textContent || '').toLowerCase()
+    }));
+
+    const sectionItems = [...document.querySelectorAll('.section-card')].map(el => ({
+      el,
+      rules: [...el.querySelectorAll('.rule')]
+    }));
+
+    function applySearch() {
+      const q = searchInput.value.trim().toLowerCase();
+      let visible = 0;
+
+      ruleItems.forEach(item => {
+        const match = !q || item.text.includes(q);
+        item.el.classList.toggle('hide', !match);
+        if (match) visible++;
+      });
+
+      sectionItems.forEach(section => {
+        const hasVisible = section.rules.some(rule => !rule.classList.contains('hide'));
+        section.el.classList.toggle('hide', Boolean(q) && !hasVisible);
+      });
+
+      empty.style.display = q && visible === 0 ? 'block' : 'none';
+    }
+
+    let searchTimer = null;
+    searchInput.addEventListener('input', () => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(applySearch, isLite ? 180 : 90);
+    });
+
+    applySearch();
+
+    const toast = document.getElementById('toast');
+    let toastTimer = null;
+
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    async function copyText(text) {
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return true;
+        }
+      } catch {}
+
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+
+      let ok = false;
+      try {
+        ok = document.execCommand('copy');
+      } catch {}
+      ta.remove();
+      return ok;
+    }
+
+    document.getElementById('copyIp').addEventListener('click', async () => {
+      const ok = await copyText(SERVER_IP);
+      showToast(ok ? `IP скопирован: ${SERVER_IP}` : `IP сервера: ${SERVER_IP}`);
+    });
+
+    (function initFloaters() {
+      if (isReduced) return;
+
+      const holder = document.getElementById('floaters');
+      const colors = [
+        'rgba(168,85,247,.55)',
+        'rgba(236,72,153,.45)',
+        'rgba(124,58,237,.42)',
+        'rgba(34,211,238,.22)'
+      ];
+
+      const orbCount = isLite ? 5 : 14;
+      const diamondCount = isLite ? 0 : 12;
+
+      for (let i = 0; i < orbCount; i++) {
+        const orb = document.createElement('div');
+        orb.className = 'orb';
+        const size = (isLite ? 70 : 90) + Math.random() * (isLite ? 120 : 220);
+        orb.style.width = `${size}px`;
+        orb.style.height = `${size}px`;
+        orb.style.left = `${Math.random() * 100}%`;
+        orb.style.top = `${Math.random() * 100}%`;
+        orb.style.background = colors[Math.floor(Math.random() * colors.length)];
+        orb.style.setProperty('--dx', `${(Math.random() - 0.5) * (isLite ? 80 : 170)}px`);
+        orb.style.setProperty('--dy', `${(Math.random() - 0.5) * (isLite ? 80 : 170)}px`);
+        orb.style.setProperty('--dur', `${12 + Math.random() * 18}s`);
+        holder.appendChild(orb);
+      }
+
+      for (let i = 0; i < diamondCount; i++) {
+        const d = document.createElement('div');
+        d.className = 'diamond';
+        const size = 12 + Math.random() * 28;
+        d.style.width = `${size}px`;
+        d.style.height = `${size}px`;
+        d.style.left = `${Math.random() * 100}%`;
+        d.style.top = `${Math.random() * 100}%`;
+        d.style.setProperty('--dur', `${10 + Math.random() * 16}s`);
+        holder.appendChild(d);
+      }
+    })();
+
+    (function initCanvas() {
+      const canvas = document.getElementById('fx');
+      if (!canvas || isReduced) return;
+
+      const ctx = canvas.getContext('2d', { alpha: true });
+      const colors = ['#a855f7', '#ec4899', '#8b5cf6', '#f472b6', '#22d3ee'];
+
+      let w = 0;
+      let h = 0;
+      let particles = [];
+      let raf = 0;
+      let last = 0;
+
+      const fps = isLite ? 30 : 60;
+      const interval = 1000 / fps;
+      const drawLinks = !isLite;
+      const mouse = { x: null, y: null, r: 130 };
+
+      function makeParticles() {
+        const base = isLite
+          ? Math.min(22, Math.floor(w / 45))
+          : Math.min(95, Math.floor(w / 14));
+
+        particles = Array.from({ length: base }, () => ({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          vx: (Math.random() - 0.5) * (isLite ? 0.18 : 0.32),
+          vy: (Math.random() - 0.5) * (isLite ? 0.18 : 0.32),
+          r: Math.random() * (isLite ? 1.5 : 2.1) + 0.7,
+          c: colors[Math.floor(Math.random() * colors.length)]
+        }));
+      }
+
+      function resize() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+        makeParticles();
+      }
+
+      window.addEventListener('resize', resize, { passive: true });
+
+      if (!isLite) {
+        window.addEventListener('mousemove', e => {
+          mouse.x = e.clientX;
+          mouse.y = e.clientY;
+        }, { passive: true });
+
+        window.addEventListener('mouseout', () => {
+          mouse.x = null;
+          mouse.y = null;
+        }, { passive: true });
+      }
+
+      function render(ts) {
+        if (!last) last = ts;
+        if (ts - last < interval) {
+          raf = requestAnimationFrame(render);
+          return;
+        }
+        last = ts;
+
+        ctx.clearRect(0, 0, w, h);
+
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+
+          p.x += p.vx;
+          p.y += p.vy;
+
+          if (p.x < 0 || p.x > w) p.vx *= -1;
+          if (p.y < 0 || p.y > h) p.vy *= -1;
+
+          if (!isLite && mouse.x !== null && mouse.y !== null) {
+            const dx = p.x - mouse.x;
+            const dy = p.y - mouse.y;
+            const dist = Math.hypot(dx, dy);
+            if (dist > 0 && dist < mouse.r) {
+              const force = (mouse.r - dist) / mouse.r * 0.75;
+              p.x += (dx / dist) * force;
+              p.y += (dy / dist) * force;
+            }
+          }
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = p.c;
+          ctx.globalAlpha = 0.7;
+          ctx.fill();
+
+          if (drawLinks) {
+            for (let j = i + 1; j < particles.length; j++) {
+              const q = particles[j];
+              const dx = p.x - q.x;
+              const dy = p.y - q.y;
+              const dist = Math.hypot(dx, dy);
+
+              if (dist < 125) {
+                ctx.beginPath();
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(q.x, q.y);
+                ctx.strokeStyle = p.c;
+                ctx.globalAlpha = (1 - dist / 125) * 0.16;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+              }
+            }
+          }
+        }
+
+        ctx.globalAlpha = 1;
+        raf = requestAnimationFrame(render);
+      }
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          cancelAnimationFrame(raf);
+        } else {
+          last = 0;
+          raf = requestAnimationFrame(render);
+        }
+      });
+
+      resize();
+      raf = requestAnimationFrame(render);
+    })();
+  </script>
+</body>
+</html>
